@@ -12,6 +12,11 @@
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.4",
+    "@solana/spl-token": "^0.3.11",
+    "@solana/spl-token-swap": "0.2.0",
+    "@solana/web3.js": "^1.89.0",
+    "mobx": "^6.12.0",
+    "mobx-react-lite": "^4.0.5",
     "next": "14.0.4",
     "react": "^18",
     "react-dom": "^18"
