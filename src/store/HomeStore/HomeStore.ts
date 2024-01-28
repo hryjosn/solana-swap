@@ -19,8 +19,8 @@ class HomeStore {
   connected = false;
   pubKey: PublicKey | null = null;
   swapTokenAmountInOut: string[] = ["0", "0"];
-  payToken: Token = tokenList["devnet"][1];
-  receiveToken: Token = tokenList["devnet"][0];
+  payToken: Token = tokenList["devnet"][0];
+  receiveToken: Token = tokenList["devnet"][1];
   receiveBalance: number = 0;
   payBalance: number = 0;
   exchangeRate: number = 0;

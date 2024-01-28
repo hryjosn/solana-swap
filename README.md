@@ -13,3 +13,5 @@ pnpm dev
 # or
 bun dev
 ```
+
+Private demo video link: <https://youtu.be/kLWqvGgOxY8>
