@@ -1,6 +1,7 @@
 import {
   PublicKey,
   Transaction,
+  Connection
 } from "@solana/web3.js";
 export type PhantomEvent = "disconnect" | "connect" | "accountChanged";
 
@@ -9,7 +10,7 @@ export interface ConnectOpts {
 }
 
 export interface PhantomProvider {
-  connect: (opts?: ConnectOpts) => Promise<{ publicKey: PublicKey }>;
+  connect: (opts?: ConnectOpts) => Promise<Connection>;
   disconnect: () => Promise<void>;
   signAndSendTransaction: (
     transaction: Transaction
@@ -21,7 +22,8 @@ export interface Token {
   tokenSymbol: string;
   mintAddress: string;
   tokenName: string;
-  icon: string;
+  tokenPoolAccountAddress: string;
+  
 }
 export type WindowWithSolana = Window & {
   solana: PhantomProvider;

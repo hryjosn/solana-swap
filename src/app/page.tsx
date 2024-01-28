@@ -2,111 +2,100 @@
 import { observer } from "mobx-react-lite";
 
 import Button from "@mui/material/Button";
-import { useEffect, useState } from "react";
-import {
-  Connection,
-  PublicKey,
-  Transaction,
-  SystemProgram,
-  sendAndConfirmTransaction,
-} from "@solana/web3.js";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import { useEffect } from "react";
+import { Connection, PublicKey } from "@solana/web3.js";
+import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import InputLabel from "@mui/material/InputLabel";
+
 import FormControl from "@mui/material/FormControl";
 import tokenList from "./tokenList.json";
 import { rootStore } from "~/store";
-import {
-  PhantomEvent,
-  ConnectOpts,
-  PhantomProvider,
-  WindowWithSolana,
-  Token,
-} from "~/store/HomeStore/type";
+import { WindowWithSolana } from "~/store/HomeStore/type";
+
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  createAssociatedTokenAccountInstruction,
   getAccount,
   getAssociatedTokenAddress,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
+
+import { runInAction } from "mobx";
+
 const Home = () => {
-  const programId = new PublicKey(
-    "7pDaTAQ5ahvmZJShgkRmkaVsMzTnemhW4uvCrApkjtKK"
-  );
   const { homeStore } = rootStore;
   const {
     payBalance,
     receiveBalance,
-
     isPhantomAvailable,
     provider,
     connected,
-    payAmount,
+    swapTokenAmountInOut,
     payToken,
-    tokenDecimal,
-    poolWalletSolAddr,
-    receiveAmount,
+    swapToken,
     receiveToken,
+    setExchangeRate,
+    exchangeRate,
+    isLoading,
   } = homeStore;
-  const getPoolWalletTokenAddr = async (mintAccToken: PublicKey) => {
-    let [poolWalletToken, poolWalletBump] = findProgramAddressSync(
-      [Buffer.from("wallet"), mintAccToken.toBuffer()],
-      new web3.PublicKey(PROGRAM_ID)
+  console.log("exchangeRate>", exchangeRate);
+  const getTokenBalance = async (
+    tokenAccount: PublicKey,
+    wallet: PublicKey
+  ) => {
+    const mintTokenAcc = new PublicKey(tokenAccount);
+    const userTokenAcc = await getAssociatedTokenAddress(
+      mintTokenAcc,
+      wallet!,
+      true,
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
     );
-    return [poolWalletToken, poolWalletBump];
+    const connection = await connectWallet();
+
+    const mintTokenAccInfo = await connection.getParsedAccountInfo(
+      mintTokenAcc
+    );
+    const decimals = (mintTokenAccInfo.value?.data as any)?.parsed.info
+      .decimals;
+    return (
+      Number((await getAccount(connection, userTokenAcc)).amount) /
+      Math.pow(10, Number(decimals))
+    );
   };
   useEffect(() => {
     if ("solana" in window) {
       const solWindow = window as WindowWithSolana;
       if (solWindow?.solana?.isPhantom) {
-        homeStore.provider = solWindow.solana;
+        runInAction(() => {
+          homeStore.provider = solWindow.solana;
+        });
+        solWindow.solana?.on("connect", (wallet: PublicKey) => {
+          runInAction(async () => {
+            homeStore.connected = true;
+            homeStore.pubKey = wallet;
 
-        solWindow.solana?.on("connect", async (publicKey: PublicKey) => {
-          homeStore.connected = true;
-          homeStore.pubKey = publicKey;
-          console.log("publicKey>", publicKey);
-          const connection = await connectWallet();
-          const balance = await connection.getBalance(publicKey!);
-          const mintTokenAcc = new PublicKey(receiveToken);
-          const userTokenAcc = await getAssociatedTokenAddress(
-            mintTokenAcc,
-            publicKey!,
-            true,
-            TOKEN_PROGRAM_ID,
-            ASSOCIATED_TOKEN_PROGRAM_ID
-          );
-          const mintTokenAccInfo = await connection.getParsedAccountInfo(
-            mintTokenAcc
-          );
-          const decimals = (mintTokenAccInfo.value?.data as any)?.parsed.info
-            .decimals;
-          homeStore.tokenDecimal = decimals;
-          const poolBalance = await connection.getBalance(programId);
-          console.log("poolBalance>", poolBalance);
-
-          const res = await getAccount(
-            connection,
-            new PublicKey("8zgM6YR3QVcrE6mnNR5jsee71syZVbott5c3vw8uWtmp")
-          );
-
-          console.log(
-            "res>",
-            Number(res.amount) / Math.pow(10, Number(decimals))
-          );
-
-          homeStore.payBalance = balance;
-          homeStore.receiveBalance =
-            Number((await getAccount(connection, userTokenAcc)).amount) /
-            Math.pow(10, Number(decimals));
+            homeStore.payBalance = await getTokenBalance(
+              new PublicKey(payToken.mintAddress),
+              wallet
+            );
+            homeStore.receiveBalance = await getTokenBalance(
+              new PublicKey(receiveToken.mintAddress),
+              wallet
+            );
+          });
+          setExchangeRate();
         });
         solWindow.solana?.on("disconnect", () => {
           console.log("disconnect event");
-          homeStore.connected = false;
-          homeStore.pubKey = null;
+          runInAction(() => {
+            homeStore.connected = false;
+            homeStore.pubKey = null;
+          });
         });
-        homeStore.isPhantomAvailable = true;
-        // Attemp an eager connection
+        runInAction(() => {
+          homeStore.isPhantomAvailable = true;
+        });
+        // Attempt an eager connection
         solWindow.solana.connect({ onlyIfTrusted: true });
       }
     }
@@ -138,52 +127,45 @@ const Home = () => {
     console.log("Connection to cluster established:", version);
     return connection;
   }
-  const swap = async () => {
-    console.log("swap");
-    if ("solana" in window) {
-      const solWindow = window as WindowWithSolana;
 
-      const connection = await connectWallet();
-
-      // const transaction = new Transaction();
-      // const { signature } = await solWindow.solana.signAndSendTransaction(
-      //   transaction
-      // );
-      // const res = await connection.getSignatureStatus(signature);
-      // console.timeLog("res>", res);
-    }
-  };
   return (
     <div className="flex items-center justify-center w-full h-full">
       <div className="border-2 p-1 rounded-lg border-black border-solid w-[480px]">
         <div className="bg-gray-300 rounded-lg py-3 px-2 mb-1">
           <div className="text-xs">
             You pay
-            <span className="ml-2">
-              (balance: {payBalance / Math.pow(10, 9)})
-            </span>
+            <span className="ml-2">(balance: {payBalance})</span>
           </div>
           <div className="flex">
             <input
+              disabled={!exchangeRate || isLoading}
               className="border-0 bg-transparent text-lg border-solid border-b-2 outline-none flex-1"
-              value={payAmount}
+              value={swapTokenAmountInOut[0]}
               onChange={(e) => {
-                homeStore.payAmount = e.target.value;
+                runInAction(() => {
+                  homeStore.swapTokenAmountInOut[0] = e.target.value;
+                  homeStore.swapTokenAmountInOut[1] = String(
+                    Number(e.target.value) * exchangeRate
+                  );
+                });
               }}
             />
             <FormControl variant="standard">
               <Select
-                value={payToken}
+                value={payToken.tokenName}
                 onChange={(e) => {
-                  homeStore.payToken = e.target.value;
+                  runInAction(() => {
+                    homeStore.swapTokenAmountInOut = ["0", "0"];
+                    homeStore.payToken = tokenList["devnet"].find(
+                      (token) => token.tokenName === e.target.value
+                    )!;
+                  });
+                  setExchangeRate();
                 }}
               >
                 {tokenList["devnet"].map((token, index) => (
-                  <MenuItem
-                    key={`MenuItem_$${index}`}
-                    value={token.mintAddress}
-                  >
-                    {token.tokenSymbol}
+                  <MenuItem key={`MenuItem_$${index}`} value={token.tokenName}>
+                    {token.tokenName}
                   </MenuItem>
                 ))}
               </Select>
@@ -194,24 +176,31 @@ const Home = () => {
           <div className="text-xs">You Receive: ({receiveBalance})</div>
           <div className="flex">
             <input
+              disabled={!exchangeRate}
               className="border-0 bg-transparent text-lg border-solid border-b-2 outline-none flex-1"
-              value={receiveAmount}
+              value={homeStore.swapTokenAmountInOut[1]}
               onChange={(e) => {
-                homeStore.receiveAmount = e.target.value;
+                runInAction(() => {
+                  homeStore.swapTokenAmountInOut[1] = e.target.value;
+                  homeStore.swapTokenAmountInOut[0] = String(
+                    Number(e.target.value) / exchangeRate
+                  );
+                });
               }}
             />
             <FormControl variant="standard">
               <Select
-                value={receiveToken}
+                value={receiveToken.tokenName}
                 onChange={(e) => {
-                  homeStore.receiveToken = e.target.value;
+                  homeStore.swapTokenAmountInOut = ["0", "0"];
+                  homeStore.receiveToken = tokenList["devnet"].find(
+                    (token) => token.tokenName === e.target.value
+                  )!;
+                  setExchangeRate();
                 }}
               >
                 {tokenList["devnet"].map((token, index) => (
-                  <MenuItem
-                    key={`MenuItem_$${index}`}
-                    value={token.mintAddress}
-                  >
+                  <MenuItem key={`MenuItem_$${index}`} value={token.tokenName}>
                     {token.tokenSymbol}
                   </MenuItem>
                 ))}
@@ -229,7 +218,7 @@ const Home = () => {
                   className="w-full"
                   // disabled={connected}
                   onClick={() => {
-                    swap();
+                    swapToken(1);
                   }}
                 >
                   Swap

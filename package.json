@@ -14,7 +14,8 @@
     "@mui/material": "^5.15.4",
     "@solana/spl-token": "^0.3.11",
     "@solana/spl-token-swap": "0.2.0",
-    "@solana/web3.js": "^1.89.0",
+    "@solana/wallet-adapter-react-ui": "^0.9.6",
+    "@solana/wallet-adapter-wallets": "^0.16.0",
     "mobx": "^6.12.0",
     "mobx-react-lite": "^4.0.5",
     "next": "14.0.4",
@@ -26,10 +27,10 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.0.4",
+    "eslint": "8.13.0",
+    "eslint-config-next": "12.1.5",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5"
+    "typescript": "4.6.3"
   }
 }

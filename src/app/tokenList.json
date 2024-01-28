@@ -1,16 +1,16 @@
 {
     "devnet": [
         {
-            "tokenSymbol": "SOL",
-            "mintAddress": "So11111111111111111111111111111111111111112",
-            "tokenName": "Solana",
-            "icon": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png"
+            "tokenSymbol": "TokenA",
+            "mintAddress": "ATwd6FkqFpp2HUeLTK6SpNVzhZCTn7er5LAevKvkgDNi",
+            "tokenPoolAccountAddress": "A7RkfotXPCdkwCqsckd9HpjT9qMRSCRWHjrEmhHfxBqT",
+            "tokenName": "TokenA"
         },
         {
-            "tokenSymbol": "MintToken",
-            "mintAddress": "5ZEqbTX9VLw6MHkPRc9Grt2Gttx1CkLZkqPEturDB2AY",
-            "tokenName": "XYZ Test",
-            "icon": "https://raw.githubusercontent.com/trustwallet/assets/08d734b5e6ec95227dc50efef3a9cdfea4c398a1/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png"
+            "tokenSymbol": "TokenB",
+            "mintAddress": "BTWb3YyHn8hwi5t5J3rwepVUz7uhXtr51E3DVYcgcShh",
+            "tokenPoolAccountAddress": "9iLALCznL5nVFzDQVC2Ej4SnuDwgGaLk8gycPWbh36no",
+            "tokenName": "TokenB"
         }
     ]
 }

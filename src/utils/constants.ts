@@ -8,11 +8,11 @@ export const swapAuthority = new Web3.PublicKey(
     "8NCH2TyToHD9hWSqBKD796aDPsAjc4sU2CyagFGkj8ei"
 )
 
-export const tokenAAccount = new Web3.PublicKey(
+export const tokenAPoolAccount = new Web3.PublicKey(
     "A7RkfotXPCdkwCqsckd9HpjT9qMRSCRWHjrEmhHfxBqT"
 )
 
-export const tokenBAccount = new Web3.PublicKey(
+export const tokenBPoolAccount = new Web3.PublicKey(
     "9iLALCznL5nVFzDQVC2Ej4SnuDwgGaLk8gycPWbh36no"
 )
 
@@ -20,8 +20,9 @@ export const poolMint = new Web3.PublicKey(
     "BWJLmvZqs5rCMdohTBJBdyJx7juyBDwBPPotg8kfTiPP"
 )
 
-export const tokenAccountPool = new Web3.PublicKey(
-    "TPvhvw5oXkLMWN6z9rp4usipqR3djgpDM3eDgnayUXR"
+
+export const poolTokenMint = new Web3.PublicKey(
+    "BWJLmvZqs5rCMdohTBJBdyJx7juyBDwBPPotg8kfTiPP"
 )
 
 export const feeAccount = new Web3.PublicKey(
